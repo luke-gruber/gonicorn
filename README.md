@@ -1,3 +1,26 @@
+# Background
+
+This is to compare Ruby 4.1.0dev Ractor speeds with Go goroutines in a networked context on a Linux machine.
+First, git clone [punions](https://github.com/ko1/punions). Run this benchmark in the punions repository:
+
+```sh
+PORT=9333
+( sleep 6
+  taskset -c 8-15 h2load --h1 --duration 10 -c 64 -t 8 http://127.0.0.1:$PORT/
+  kill "$(ss -lptn "sport = :$PORT" | grep -oP 'pid=\K[0-9]+' | head -1)"
+) &
+
+env RUBY_MN_THREADS=1 \
+    GEM_HOME=$HOME/.gem/ruby/4.1.0 \
+    GEM_PATH=$HOME/.gem/ruby/4.1.0:$HOME/.rubies/ruby_master/lib/ruby/gems/4.1.0+4 \
+    taskset -c 0-7 $HOME/.rubies/ruby_master/bin/ruby \
+    punicorn/bin/punicorn -q -b 127.0.0.1 -p $PORT examples/config.ru
+```
+
+Replace `GEM_HOME` and `GEM_PATH` with your correct paths.
+
+NOTE: you will need `h2load` for this.
+
 # Gonicorn
 
 Punicorn's shape in Go: **every connection gets its own goroutine**.
