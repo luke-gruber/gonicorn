@@ -62,7 +62,7 @@ server's median run whole, and the req/s spread across its three runs was 1.1%
 for Gonicorn and 0.6% for Punicorn.
 
 | `/` | req/s | TTFB p50 | p95 | p99 | server CPU |
-|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|
 | **Gonicorn** (goroutine/conn) | **942 518** | 287 µs | 443 µs | 547 µs | 6.78 of 8 cores |
 | Punicorn (Ractor/conn) | 334 215 | 505 µs | 1.69 ms | 3.46 ms | 7.13 of 8 cores |
 
