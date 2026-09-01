@@ -3,6 +3,7 @@
 This is to compare Ruby 4.1.0dev Ractor speeds with Go goroutines in a networked context on a Linux machine.
 First, git clone [punions](https://github.com/ko1/punions). Run this benchmark in the punions repository:
 
+`bench.sh`:
 ```sh
 PORT=9333
 ( sleep 6
@@ -60,12 +61,12 @@ the endpoint with no application in it. Three paired runs; each row is that
 server's median run whole, and the req/s spread across its three runs was 1.1%
 for Gonicorn and 0.6% for Punicorn.
 
-| `/` | req/s | TTFB p50 | p95 | p99 | server CPU | peak RSS |
+| `/` | req/s | TTFB p50 | p95 | p99 | server CPU |
 |---|---|---|---|---|---|---|
-| **Gonicorn** (goroutine/conn) | **942 518** | 287 µs | 443 µs | 547 µs | 6.78 of 8 cores | **24 MB** |
-| Punicorn (Ractor/conn) | 334 215 | 505 µs | 1.69 ms | 3.46 ms | 7.13 of 8 cores | 2 324 MB |
+| **Gonicorn** (goroutine/conn) | **942 518** | 287 µs | 443 µs | 547 µs | 6.78 of 8 cores |
+| Punicorn (Ractor/conn) | 334 215 | 505 µs | 1.69 ms | 3.46 ms | 7.13 of 8 cores |
 
-**2.8× the requests for slightly less CPU, and a hundredth of the memory.**
+**2.8× the requests for slightly less CPU**
 
 Four things that table is not:
 
@@ -82,13 +83,6 @@ Four things that table is not:
   work is charged to the kernel rather than to either process, so the missing
   core-and-a-bit is mostly there. h2load itself used about 3 of its 8 cores, so
   the load generator was not the limit for either row.
-- **The RSS column is not measuring the same thing twice.** Punicorn's resident
-  memory rises with cumulative requests and settles at a plateau far above its
-  live set — the shape is diagnosed at length in punions' `punicorn/README.md`
-  and it is a heap per Ractor plus a glibc allocator that has not reached steady
-  state. Go has one heap for the process however many goroutines exist, so there
-  is no per-unit page floor to pay 64 times. That is the memory half of the
-  Ractor question, and it is the largest number in the table.
 
 Wire bytes: Go sends a `Date` header and Puma does not, so a response to `/` is
 114 bytes here against Punicorn's 78. `-date=false` removes it and makes the two
